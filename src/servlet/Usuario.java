@@ -34,14 +34,18 @@ public class Usuario extends HttpServlet {
 		String user = request.getParameter("user");
 		
 		if(acao.equalsIgnoreCase("delete")) {
-			daoUsuario.delete(user);
+			daoUsuario.delete(Long.parseLong(user));
 			RequestDispatcher view  = request.getRequestDispatcher("/cadastroUsuario.jsp");
 			request.setAttribute("usuarios", daoUsuario.listar());
 			view.forward(request, response);
 		}else if(acao.equalsIgnoreCase("editar")) {
-			BeanCursoJsp beanCursoJsp = daoUsuario.consultar(user);
+			BeanCursoJsp beanCursoJsp = daoUsuario.consultar(Long.parseLong(user));
 			RequestDispatcher view  = request.getRequestDispatcher("/cadastroUsuario.jsp");
 			request.setAttribute("user", beanCursoJsp);
+			view.forward(request, response);
+		}else if(acao.equalsIgnoreCase("listarTodos")) {
+			RequestDispatcher view  = request.getRequestDispatcher("/cadastroUsuario.jsp");
+			request.setAttribute("usuarios", daoUsuario.listar());
 			view.forward(request, response);
 		}
 	}
@@ -50,11 +54,13 @@ public class Usuario extends HttpServlet {
 		String id = request.getParameter("id");
 		String login = request.getParameter("login");
 		String senha  = request.getParameter("senha");
+		String nome  = request.getParameter("nome");
 		
 		BeanCursoJsp usuario  = new BeanCursoJsp();
 		usuario.setId(!id.isEmpty()? Long.parseLong(id) : 0);// o id tem valor? se sim faz o setId se não faz o setID atribuindo o valor 0
 		usuario.setLogin(login);
 		usuario.setSenha(senha);
+		usuario.setNome(nome);
 		
 		if(id == null || id.isEmpty()) {
 			daoUsuario.salvar(usuario);

@@ -4,43 +4,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="ISO-8859-1">
+<meta charset="utf-8">
 <title>Cadstro de Usuário</title>
+<link rel="stylesheet" href="resources/css/cadastro.css">
 </head>
 <body>
-	<h2>Cadastro de Usuário</h2>
-	<form action="salvarUsuario" method="POST">
-		<table>
-			<tr>
-				<td>Código</td>
-				<td><input type="text" readonly="readonly" id="id" name="id" value="${user.id}">
-				</td>
-			</tr>
-			<tr>
-				<td>Login</td>
-				<td><input type="text" id="login" name="login"
-					value="${user.login}"></td>
-			</tr>
-			<tr>
-				<td>Senha</td>
-				<td><input type="password" id="senha" name="senha"
-					value="${user.senha}"></td>
-			</tr>
-		</table>
-		<input type="submit" value="Salvar">
-	</form>
-
-	<table>
-		<c:forEach items="${usuarios}" var="user">
-			<tr>
-				<td><c:out value="${user.id}"></c:out></td>
-				<td><c:out value="${user.login}"></c:out></td>
-				<td><c:out value="${user.senha}"></c:out></td>
-				<td><a href="salvarUsuario?acao=delete&user=${user.login}">Excluir</a></td>
-				<td><a href="salvarUsuario?acao=editar&user=${user.login}">Editar</a></td>
-			</tr>
-		</c:forEach>
-	</table>
-
+	<div class="content">
+		<form action="salvarUsuario" method="POST">
+			<h1>Cadastro de Usuário</h1>
+			<ul class="form-style-1">
+				<li>
+					<table>
+						<tr>
+							<td>Código</td>
+							<td><input type="text" readonly="readonly" id="id" name="id"
+								value="${user.id}" class="field-long"></td>
+						</tr>
+						<tr>
+							<td>Login</td>
+							<td><input type="text" id="login" name="login"
+								value="${user.login}" class="field-long"></td>
+						</tr>
+						<tr>
+							<td>Nome</td>
+							<td><input type="text" id="nome" name="nome"
+								value="${user.nome}" class="field-long"></td>
+						</tr>
+						<tr>
+							<td>Senha</td>
+							<td><input type="password" id="senha" name="senha"
+								value="${user.senha}" class="field-long"></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td><input type="submit" value="Salvar"></td>
+						</tr>
+					</table>
+				</li>
+			</ul>
+		</form>
+		<div class="container">
+			<table class="responsive-table">
+				<caption>Lista de usuários</caption>
+				<tr>
+					<th>ID</th>
+					<th>Login</th>
+					<th>Nome</th>
+					<th>Excluir</th>
+					<th>Editar</th>
+				</tr>
+				<c:forEach items="${usuarios}" var="user">
+					<tr>
+						<td><c:out value="${user.id}"></c:out></td>
+						<td><c:out value="${user.login}"></c:out></td>
+						<td><c:out value="${user.nome}"></c:out></td>
+						<td><a href="salvarUsuario?acao=delete&user=${user.id}"><img
+								src="resources/img/excluir.png" width="20px" height="20px"
+								title="Excluir Usuário"></a></td>
+						<td><a href="salvarUsuario?acao=editar&user=${user.id}">
+								<img src="resources/img/editar.png" width="20px" height="20px"
+								title="Editar Usuário">
+						</a></td>
+					</tr>
+				</c:forEach>
+			</table>
+		</div>
+	</div>
 </body>
 </html>

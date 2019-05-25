@@ -5,6 +5,15 @@ public class BeanCursoJsp {
 	private String login;
 	private String senha;
 	private Long id;
+	private String nome;
+	
+	public String getNome() {
+		return nome;
+	}
+	
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
 	
 	public Long getId() {
 		return id;
