@@ -10,8 +10,9 @@
 </head>
 <body>
 	<div class="content">
-		<form action="salvarUsuario" method="POST">
+		<form action="salvarUsuario" method="POST" id="formUser">
 			<h1>Cadastro de Usuário</h1>
+			<center><h3 style="color: orange">${msg}</h3></center>
 			<ul class="form-style-1">
 				<li>
 					<table>
@@ -36,8 +37,14 @@
 								value="${user.senha}" class="field-long"></td>
 						</tr>
 						<tr>
-							<td></td>
+							<td>Fone</td>
+							<td><input type="text" id="fone" name="fone"
+								value="${user.fone}" class="field-long"></td>
+						</tr>
+						<tr>
+							
 							<td><input type="submit" value="Salvar"></td>
+							<td><input type="submit" value="Cancelar" onclick="document.getElementById('formUser').action = 'salvarUsuario?acao=reset'"></td>
 						</tr>
 					</table>
 				</li>
@@ -50,6 +57,7 @@
 					<th>ID</th>
 					<th>Login</th>
 					<th>Nome</th>
+					<th>Fone</th>
 					<th>Excluir</th>
 					<th>Editar</th>
 				</tr>
@@ -58,6 +66,7 @@
 						<td><c:out value="${user.id}"></c:out></td>
 						<td><c:out value="${user.login}"></c:out></td>
 						<td><c:out value="${user.nome}"></c:out></td>
+						<td><c:out value="${user.fone}"></c:out></td>
 						<td><a href="salvarUsuario?acao=delete&user=${user.id}"><img
 								src="resources/img/excluir.png" width="20px" height="20px"
 								title="Excluir Usuário"></a></td>

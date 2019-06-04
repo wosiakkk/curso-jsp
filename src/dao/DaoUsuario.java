@@ -19,13 +19,14 @@ public class DaoUsuario {
 	}
 
 	public void salvar(BeanCursoJsp usuario) {
-		String sql = "insert into usuarios (login,senha,nome) values (?,?,?)";
+		String sql = "insert into usuarios (login,senha,nome,fone) values (?,?,?,?)";
 		PreparedStatement insert;
 		try {
 			insert = connection.prepareStatement(sql);
 			insert.setString(1, usuario.getLogin());
 			insert.setString(2, usuario.getSenha());
 			insert.setString(3, usuario.getNome());
+			insert.setString(4,  usuario.getFone());
 			insert.execute();
 			connection.commit();
 		} catch (SQLException e) {
@@ -51,6 +52,7 @@ public class DaoUsuario {
 				usuario.setLogin(rs.getString("login"));
 				usuario.setSenha(rs.getString("senha"));
 				usuario.setNome(rs.getString("nome"));
+				usuario.setFone(rs.getString("fone"));
 				lista.add(usuario);
 			}	
 		} catch (SQLException e) {
@@ -91,6 +93,7 @@ public class DaoUsuario {
 				usuario.setLogin(rs.getString("login"));
 				usuario.setSenha(rs.getString("senha"));
 				usuario.setNome(rs.getString("nome"));
+				usuario.setFone(rs.getString("fone"));
 				return usuario;
 			}
 		} catch (SQLException e) {
@@ -99,17 +102,57 @@ public class DaoUsuario {
 		}			
 		return null;
 	}
+	
+public boolean validarLogin(String login) {
+		
+		String sql = "select count(1) as qtd from usuarios where login = ?"; //se existir o login retoirna 1 se não 0
+		try {
+			PreparedStatement buscar = connection.prepareStatement(sql);
+			buscar.setString(1, login);
+			ResultSet rs = buscar.executeQuery();
+			if(rs.next()) {	
+				int quantidade =  rs.getInt("qtd");
+				if(quantidade > 0)
+					return false;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}			
+		return true;
+	}
+
+public boolean validarLoginUpdate(String login, Long id) {
+	
+	String sql = "select count(1) as qtd from usuarios where login = ? and  id <> ?"; //se existir o login retoirna 1 se não 0
+	try {
+		PreparedStatement buscar = connection.prepareStatement(sql);
+		buscar.setString(1, login);
+		buscar.setLong(2, id);
+		ResultSet rs = buscar.executeQuery();
+		if(rs.next()) {	
+			int quantidade =  rs.getInt("qtd");
+			if(quantidade > 0)
+				return false;
+		}
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}			
+	return true;
+}
 
 	public void atualizar(BeanCursoJsp usuario) {
 		
-		String sql = "update usuarios set login = ?, senha = ?, nome = ? where id = ?";
+		String sql = "update usuarios set login = ?, senha = ?, nome = ?, fone = ? where id = ?";
 		PreparedStatement stmt;
 		try {
 			stmt = connection.prepareStatement(sql);
 			stmt.setString(1, usuario.getLogin());
 			stmt.setString(2, usuario.getSenha());
 			stmt.setString(3, usuario.getNome());
-			stmt.setLong(4, usuario.getId());
+			stmt.setString(4, usuario.getFone());
+			stmt.setLong(5 , usuario.getId());
 			stmt.executeUpdate();
 			connection.commit();
 		} catch (SQLException e) {
