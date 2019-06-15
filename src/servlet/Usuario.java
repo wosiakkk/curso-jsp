@@ -66,28 +66,56 @@ public class Usuario extends HttpServlet {
 			String senha = request.getParameter("senha");
 			String nome = request.getParameter("nome");
 			String fone = request.getParameter("fone");
+			String cep = request.getParameter("cep");
+			String rua = request.getParameter("rua");
+			String bairro = request.getParameter("bairro");
+			String cidade = request.getParameter("cidade");
+			String estado = request.getParameter("estado");
+			String ibge = request.getParameter("ibge");
 
 			BeanCursoJsp usuario = new BeanCursoJsp();
 			usuario.setId(!id.isEmpty() ? Long.parseLong(id) : null);// o id tem valor? se sim faz o setId se não faz o
-																	// setID atribuindo o valor null
+																		// setID atribuindo o valor null
 			usuario.setLogin(login);
 			usuario.setSenha(senha);
 			usuario.setNome(nome);
 			usuario.setFone(fone);
+			usuario.setCep(cep);
+			usuario.setRua(rua);
+			usuario.setBairro(bairro);
+			usuario.setCidade(cidade);
+			usuario.setEstado(estado);
+			usuario.setIbge(ibge);
+			
+			if (login == null || login.isEmpty()) {
+				request.setAttribute("msg", "O login deve ser informado");
+				request.setAttribute("user", usuario);
 
-			if(id == null || id.isEmpty() && !daoUsuario.validarLogin(login)) {
+			} else if (senha == null || senha.isEmpty()) {
+				request.setAttribute("msg", "A senha deve ser informada");
+				request.setAttribute("user", usuario);
+
+			} else if (nome == null || nome.isEmpty()) {
+				request.setAttribute("msg", "O nome deve ser informado");
+				request.setAttribute("user", usuario);
+
+			} else if (fone == null || fone.isEmpty()) {
+				request.setAttribute("msg", "O telefone deve ser informado");
+				request.setAttribute("user", usuario);
+
+			} else if (id == null || id.isEmpty() && !daoUsuario.validarLogin(login)) {
 				request.setAttribute("msg", "Usuário já existe com o mesmo login");
 				request.setAttribute("user", usuario);
-			}
-			
-			if (id == null || id.isEmpty() && daoUsuario.validarLogin(login)) {
+			} else if (id == null || id.isEmpty() && daoUsuario.validarLogin(login)) {
 				daoUsuario.salvar(usuario);
-			} else if(id != null && !id.isEmpty()){
-				if(!daoUsuario.validarLoginUpdate(login, Long.parseLong(id))) {
+				request.setAttribute("msg", "Usuário cadastrado com sucesso");
+			} else if (id != null && !id.isEmpty()) {
+				if (!daoUsuario.validarLoginUpdate(login, Long.parseLong(id))) {
 					request.setAttribute("msg", "O login já existe para outro usuário cadastrado");
 					request.setAttribute("user", usuario);
-				}else {
+				} else {
 					daoUsuario.atualizar(usuario);
+					request.setAttribute("msg", "Usuário atualizado com sucesso");
 				}
 			}
 

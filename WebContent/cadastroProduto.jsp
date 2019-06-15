@@ -7,12 +7,20 @@
 <meta charset="utf-8">
 <title>Cadstro de Produto</title>
 <link rel="stylesheet" href="resources/css/cadastro.css">
+
+<script type='text/javascript' src="webjars/jquery/3.4.1/jquery.min.js"></script>
+
 </head>
 <body>
+	<a href="acessoliberado.jsp">Início</a>
+	<a href="index.jsp">Sair</a>
 	<div class="content">
-		<form action="salvarProduto" method="POST" id="formUser">
+		<form action="salvarProduto" method="POST" id="formUser"
+			onsubmit="return validarCampos()? true: false;">
 			<h1>Cadastro de Produto</h1>
-			<center><h3 style="color: orange">${msg}</h3></center>
+			<center>
+				<h3 style="color: orange">${msg}</h3>
+			</center>
 			<ul class="form-style-1">
 				<li>
 					<table>
@@ -37,14 +45,16 @@
 								value="${prod.valor}" class="field-long"></td>
 						</tr>
 						<tr>
-							
+
 							<td><input type="submit" value="Salvar"></td>
-							<td><input type="submit" value="Cancelar" onclick="document.getElementById('formUser').action = 'salvarProduto?acao=reset'"></td>
+							<td><input type="submit" value="Cancelar"
+								onclick="document.getElementById('formUser').action = 'salvarProduto?acao=reset'"></td>
 						</tr>
 					</table>
 				</li>
 			</ul>
 		</form>
+
 		<div class="container">
 			<table class="responsive-table">
 				<caption>Lista de produtos</caption>
@@ -74,5 +84,22 @@
 			</table>
 		</div>
 	</div>
+	<script type="text/javascript">
+		function validarCampos() {
+			if (document.getElementById("nome").value == '') {
+				alert('O nome deve ser informado.');
+				return false;
+			} else if (document.getElementById("quantidade").value == '') {
+				alert('A quantidade deve ser informada.');
+				return false;
+			} else if (document.getElementById("valor").value == '') {
+				alert('O valor deve ser informado.');
+				return false;
+			}
+
+			return true;
+		};
+	</script>
+
 </body>
 </html>

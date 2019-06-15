@@ -19,7 +19,8 @@ public class DaoUsuario {
 	}
 
 	public void salvar(BeanCursoJsp usuario) {
-		String sql = "insert into usuarios (login,senha,nome,fone) values (?,?,?,?)";
+		String sql = "insert into usuarios (login,senha,nome,fone,"
+				+ "cep,rua,bairro,cidade,estado,ibge) values (?,?,?,?,?,?,?,?,?,?)";
 		PreparedStatement insert;
 		try {
 			insert = connection.prepareStatement(sql);
@@ -27,7 +28,13 @@ public class DaoUsuario {
 			insert.setString(2, usuario.getSenha());
 			insert.setString(3, usuario.getNome());
 			insert.setString(4,  usuario.getFone());
-			insert.execute();
+			insert.setString(5, usuario.getCep());
+			insert.setString(6, usuario.getRua());
+			insert.setString(7, usuario.getBairro());
+			insert.setString(8, usuario.getCidade());
+			insert.setString(9, usuario.getEstado());
+			insert.setString(10, usuario.getIbge());
+			insert.executeUpdate();
 			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -94,6 +101,12 @@ public class DaoUsuario {
 				usuario.setSenha(rs.getString("senha"));
 				usuario.setNome(rs.getString("nome"));
 				usuario.setFone(rs.getString("fone"));
+				usuario.setCep(rs.getString("cep"));
+				usuario.setRua(rs.getString("rua"));
+				usuario.setBairro(rs.getString("bairro"));
+				usuario.setCidade(rs.getString("cidade"));
+				usuario.setEstado(rs.getString("estado"));
+				usuario.setIbge(rs.getString("ibge"));
 				return usuario;
 			}
 		} catch (SQLException e) {
@@ -144,7 +157,8 @@ public boolean validarLoginUpdate(String login, Long id) {
 
 	public void atualizar(BeanCursoJsp usuario) {
 		
-		String sql = "update usuarios set login = ?, senha = ?, nome = ?, fone = ? where id = ?";
+		String sql = "update usuarios set login = ?, senha = ?, nome = ?, fone = ?, cep = ?"
+				+ ", rua = ?, bairro = ?, cidade = ?, estado = ?, ibge = ?  where id = ?";
 		PreparedStatement stmt;
 		try {
 			stmt = connection.prepareStatement(sql);
@@ -152,7 +166,14 @@ public boolean validarLoginUpdate(String login, Long id) {
 			stmt.setString(2, usuario.getSenha());
 			stmt.setString(3, usuario.getNome());
 			stmt.setString(4, usuario.getFone());
-			stmt.setLong(5 , usuario.getId());
+			stmt.setString(5, usuario.getCep());
+			stmt.setString(6, usuario.getRua());
+			stmt.setString(7, usuario.getBairro());
+			stmt.setString(8, usuario.getCidade());
+			stmt.setString(9, usuario.getEstado());
+			stmt.setString(10, usuario.getIbge());
+			stmt.setLong(11 , usuario.getId());
+			
 			stmt.executeUpdate();
 			connection.commit();
 		} catch (SQLException e) {
