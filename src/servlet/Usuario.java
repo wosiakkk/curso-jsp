@@ -1,13 +1,27 @@
 package servlet;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.naming.PartialResultException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 
 import beans.BeanCursoJsp;
 import dao.DaoUsuario;
@@ -16,10 +30,11 @@ import dao.DaoUsuario;
  * Servlet implementation class Usuario
  */
 @WebServlet("/salvarUsuario")
+@MultipartConfig //necessária a notação para receber dados de texto e dado de upload
 public class Usuario extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private DaoUsuario daoUsuario = new DaoUsuario();
-
+	
 	public Usuario() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -73,8 +88,45 @@ public class Usuario extends HttpServlet {
 			String estado = request.getParameter("estado");
 			String ibge = request.getParameter("ibge");
 
+
 			BeanCursoJsp usuario = new BeanCursoJsp();
-			usuario.setId(!id.isEmpty() ? Long.parseLong(id) : null);// o id tem valor? se sim faz o setId se não faz o
+			
+			/* Início de upload de foto */
+			try {
+				// validar se o formulário é de upload
+				if (ServletFileUpload.isMultipartContent(request)) {
+
+					/*List<FileItem> fileItem = new ServletFileUpload(
+							new org.apache.commons.fileupload.disk.DiskFileItemFactory()).parseRequest(request);
+					for (FileItem fileItem2 : fileItem) {
+						// procura o campo da foto na requisição
+						if (fileItem2.getFieldName().equals("foto")) {
+							// base 64 lib tom cat
+							String fotoBase64 = new Base64().encodeBase64String(fileItem2.get());
+							String contentType = fileItem2.getContentType();
+							usuario.setFotoBase64(fotoBase64);
+							usuario.setContentType(contentType);
+						}
+					}*/
+					
+					Part imagemFoto = request.getPart("foto");
+					String fotoBase64 = new Base64().encodeBase64String(converteStreamParaByte(imagemFoto.getInputStream()));
+					
+					usuario.setFotoBase64(fotoBase64);
+					usuario.setContentType(imagemFoto.getContentType());
+					
+					
+				}	
+			}
+
+			catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			/* fim upoload foto */
+
+			//usuario.setId(!id.isEmpty() ? Long.parseLong(id) : null);// o id tem valor? se sim faz o setId se não faz o
 																		// setID atribuindo o valor null
 			usuario.setLogin(login);
 			usuario.setSenha(senha);
@@ -86,7 +138,7 @@ public class Usuario extends HttpServlet {
 			usuario.setCidade(cidade);
 			usuario.setEstado(estado);
 			usuario.setIbge(ibge);
-			
+
 			if (login == null || login.isEmpty()) {
 				request.setAttribute("msg", "O login deve ser informado");
 				request.setAttribute("user", usuario);
@@ -124,5 +176,15 @@ public class Usuario extends HttpServlet {
 			view.forward(request, response);
 		}
 	}
-
+//método para converter dados da imagem em Stream para um array de Bytes para poder salvar como texto no BD
+	private static byte[] converteStreamParaByte(InputStream imagem) throws IOException {
+		ByteArrayOutputStream baops = new ByteArrayOutputStream();
+		int reads =  imagem.read();
+		while(reads !=-1) {
+			baops.write(reads);
+			reads = imagem.read();
+		}
+		return baops.toByteArray();
+	}
+	
 }
