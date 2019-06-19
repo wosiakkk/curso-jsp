@@ -62,6 +62,8 @@ public class DaoUsuario {
 				usuario.setSenha(rs.getString("senha"));
 				usuario.setNome(rs.getString("nome"));
 				usuario.setFone(rs.getString("fone"));
+				usuario.setFotoBase64(rs.getString("fotobase64"));
+				usuario.setContentType(rs.getString("contenttype"));
 				lista.add(usuario);
 			}	
 		} catch (SQLException e) {
