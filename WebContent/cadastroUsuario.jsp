@@ -71,7 +71,20 @@
 					</tr>
 					<tr>
 						<td>Foto:</td>
-						<td><input type="file" name="foto" id="foto" value="foto" class="field-long"></td>
+						<td><input type="file" name="foto" id="foto"
+							class="field-long"><input type="text" readonly="readonly"
+							value="${user.fotoBase64}" name="fotoTemp" hidden> <input
+							type="text" readonly="readonly" value="${user.contentType}"
+							name="contentTypeTemp" hidden></td>
+					</tr>
+					<tr>
+						<td>Currículo:</td>
+						<td><input type="file" name="curriculo" id="curriculo"
+							value="curriculo" class="field-long"><input type="text"
+							readonly="readonly" value="${user.curriculoBase64}"
+							name="curriculoTemp" hidden> <input type="text"
+							readonly="readonly" value="${user.contentTypeCurriculo}"
+							name="contentTypeCurriculoTemp" hidden></td>
 					</tr>
 					<tr>
 						<td><input type="submit" value="Salvar"></td>
@@ -87,9 +100,9 @@
 		<caption>Lista de usuários</caption>
 		<tr>
 			<th>ID</th>
-			<th>Login</th>
+			<th>Foto</th>
+			<th>Currículo</th>
 			<th>Nome</th>
-			<th>Fone</th>
 			<th>Excluir</th>
 			<th>Editar</th>
 			<th>Telefones</th>
@@ -97,9 +110,25 @@
 		<c:forEach items="${usuarios}" var="user">
 			<tr>
 				<td><c:out value="${user.id}"></c:out></td>
-				<td><c:out value="${user.login}"></c:out></td>
+				<!-- *** Verificando se há foto no BD para exibir do usuário *** -->
+				<c:if test="${user.fotoBase64.isEmpty() == false}">
+					<td><a
+						href="salvarUsuario?acao=download&tipo=imagem&user=${user.id}"><img
+							src='<c:out value="${user.tempFotoUser}"></c:out>'
+							alt="Imagem User" title="Imagem User" width="32px" height="32px"></a></td>
+				</c:if>
+				<c:if test="${user.fotoBase64.isEmpty() == true || user.fotoBase64.isEmpty() == null}">
+					<td><img src="resources/img/userpadrao.png" alt="Imagem User" width="32px" height="32px"></td>
+				</c:if>
+				<!-- *** -->
+				<c:if test="${user.curriculoBase64.isEmpty() == false}">
+				<td><a
+					href="salvarUsuario?acao=download&tipo=curriculo&user=${user.id}"><img alt="Currículo" src="resources/img/cv.png"></a></td>
+				</c:if>
+				<c:if test="${user.curriculoBase64.isEmpty() == true || user.curriculoBase64.isEmpty() == null }">
+					<td><img alt="Sem currículo" src="resources/img/not-found.png" onclick="alert('Não possui currículo')"></td>
+				</c:if>
 				<td><c:out value="${user.nome}"></c:out></td>
-				<td><c:out value="${user.fone}"></c:out></td>
 				<td><a href="salvarUsuario?acao=delete&user=${user.id}"><img
 						src="resources/img/excluir.png" width="20px" height="20px"
 						title="Excluir Usuário"></a></td>
@@ -163,4 +192,5 @@
 
 		};
 	</script>
+	</body>
 </html>

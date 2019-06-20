@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -30,11 +32,11 @@ import dao.DaoUsuario;
  * Servlet implementation class Usuario
  */
 @WebServlet("/salvarUsuario")
-@MultipartConfig //necessária a notação para receber dados de texto e dado de upload
+@MultipartConfig // necessária a notação para receber dados de texto e dado de upload
 public class Usuario extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private DaoUsuario daoUsuario = new DaoUsuario();
-	
+
 	public Usuario() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -42,8 +44,6 @@ public class Usuario extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
 
 		String acao = request.getParameter("acao");
 		String user = request.getParameter("user");
@@ -62,6 +62,46 @@ public class Usuario extends HttpServlet {
 			RequestDispatcher view = request.getRequestDispatcher("/cadastroUsuario.jsp");
 			request.setAttribute("usuarios", daoUsuario.listar());
 			view.forward(request, response);
+		} else if (acao.equalsIgnoreCase("download")) {
+			BeanCursoJsp beanCursoJsp = daoUsuario.consultar(Long.parseLong(user));
+			if (beanCursoJsp != null) {
+				// clicando na imagem sem redirecionar para outra página e realizar o download
+				// direto da imagem
+				// no content type realizei um replace para tirar somente a ext do arquivo que
+				// preciso para contatenar
+
+				String contentType = "";
+				byte[] fileBytes = null;
+				String tipo = request.getParameter("tipo");
+
+				if (tipo.equalsIgnoreCase("imagem")) {
+					contentType = beanCursoJsp.getContentType();
+					// convertendo a base64 salva no banco da imagem para byte
+					fileBytes = new Base64().decodeBase64(beanCursoJsp.getFotoBase64());
+				} else if (tipo.equalsIgnoreCase("curriculo")) {
+					contentType = beanCursoJsp.getContentTypeCurriculo();
+					// convertendo a base64 salva no banco do curriculo para byte
+					fileBytes = new Base64().decodeBase64(beanCursoJsp.getCurriculoBase64());
+				}
+
+				response.setHeader("Content-Disposition", "attachment;filename=arquivo." + contentType.split("\\/")[1]);
+
+				// colocar os bytes em objeto de fluxo de entrada para processar
+				InputStream input = new ByteArrayInputStream(fileBytes);
+
+				/* Início da resposta para o navegador */
+				int read = 0;
+				byte[] bytes = new byte[1024];
+				OutputStream os = response.getOutputStream();
+
+				while ((read = input.read(bytes)) != -1) {
+					os.write(bytes, 0, read);
+				}
+
+				os.flush();
+				os.close();
+
+			}
 		}
 	}
 
@@ -88,35 +128,51 @@ public class Usuario extends HttpServlet {
 			String estado = request.getParameter("estado");
 			String ibge = request.getParameter("ibge");
 
-
 			BeanCursoJsp usuario = new BeanCursoJsp();
-			
+
 			/* Início de upload de foto */
 			try {
 				// validar se o formulário é de upload
 				if (ServletFileUpload.isMultipartContent(request)) {
 
-					/*List<FileItem> fileItem = new ServletFileUpload(
-							new org.apache.commons.fileupload.disk.DiskFileItemFactory()).parseRequest(request);
-					for (FileItem fileItem2 : fileItem) {
-						// procura o campo da foto na requisição
-						if (fileItem2.getFieldName().equals("foto")) {
-							// base 64 lib tom cat
-							String fotoBase64 = new Base64().encodeBase64String(fileItem2.get());
-							String contentType = fileItem2.getContentType();
-							usuario.setFotoBase64(fotoBase64);
-							usuario.setContentType(contentType);
-						}
-					}*/
-					
+					/*
+					 * List<FileItem> fileItem = new ServletFileUpload( new
+					 * org.apache.commons.fileupload.disk.DiskFileItemFactory()).parseRequest(
+					 * request); for (FileItem fileItem2 : fileItem) { // procura o campo da foto na
+					 * requisição if (fileItem2.getFieldName().equals("foto")) { // base 64 lib tom
+					 * cat String fotoBase64 = new Base64().encodeBase64String(fileItem2.get());
+					 * String contentType = fileItem2.getContentType();
+					 * usuario.setFotoBase64(fotoBase64); usuario.setContentType(contentType); } }
+					 */
+
 					Part imagemFoto = request.getPart("foto");
-					String fotoBase64 = new Base64().encodeBase64String(converteStreamParaByte(imagemFoto.getInputStream()));
-					
-					usuario.setFotoBase64(fotoBase64);
-					usuario.setContentType(imagemFoto.getContentType());
-					
-					
-				}	
+
+					if (imagemFoto != null && imagemFoto.getInputStream().available() > 0) {
+						String fotoBase64 = new Base64()
+								.encodeBase64String(converteStreamParaByte(imagemFoto.getInputStream()));
+
+						usuario.setFotoBase64(fotoBase64);
+						usuario.setContentType(imagemFoto.getContentType());
+					} else {
+						usuario.setFotoBase64(request.getParameter("fotoTemp"));
+						usuario.setContentType(request.getParameter("contentTypeTemp"));
+					}
+
+					// Processamento PDF
+					Part curriculoPdf = request.getPart("curriculo");
+
+					if (curriculoPdf != null && curriculoPdf.getInputStream().available() > 0) {
+						String curriculoBase64 = new Base64()
+								.encodeBase64String(converteStreamParaByte(curriculoPdf.getInputStream()));
+
+						usuario.setCurriculoBase64(curriculoBase64);
+						usuario.setContentTypeCurriculo(curriculoPdf.getContentType());
+					} else {
+						usuario.setCurriculoBase64(request.getParameter("curriculoTemp"));
+						usuario.setContentTypeCurriculo(request.getParameter("contentTypeCurriculoTemp"));
+					}
+
+				}
 			}
 
 			catch (Exception e) {
@@ -126,8 +182,9 @@ public class Usuario extends HttpServlet {
 
 			/* fim upoload foto */
 
-			//usuario.setId(!id.isEmpty() ? Long.parseLong(id) : null);// o id tem valor? se sim faz o setId se não faz o
-																		// setID atribuindo o valor null
+			usuario.setId(!id.isEmpty() ? Long.parseLong(id) : null);// o id tem valor?
+			// se sim faz o setId se não faz o
+			// setID atribuindo o valor null
 			usuario.setLogin(login);
 			usuario.setSenha(senha);
 			usuario.setNome(nome);
@@ -176,15 +233,16 @@ public class Usuario extends HttpServlet {
 			view.forward(request, response);
 		}
 	}
+
 //método para converter dados da imagem em Stream para um array de Bytes para poder salvar como texto no BD
 	private static byte[] converteStreamParaByte(InputStream imagem) throws IOException {
 		ByteArrayOutputStream baops = new ByteArrayOutputStream();
-		int reads =  imagem.read();
-		while(reads !=-1) {
+		int reads = imagem.read();
+		while (reads != -1) {
 			baops.write(reads);
 			reads = imagem.read();
 		}
 		return baops.toByteArray();
 	}
-	
+
 }
