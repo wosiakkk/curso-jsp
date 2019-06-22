@@ -1,14 +1,14 @@
 package servlet;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.naming.PartialResultException;
+import javax.imageio.ImageIO;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -17,13 +17,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
+import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 
 import beans.BeanCursoJsp;
 import dao.DaoUsuario;
@@ -48,21 +45,21 @@ public class Usuario extends HttpServlet {
 		String acao = request.getParameter("acao");
 		String user = request.getParameter("user");
 
-		if (acao.equalsIgnoreCase("delete")) {
+		if (acao != null && acao.equalsIgnoreCase("delete") && user != null) {
 			daoUsuario.delete(Long.parseLong(user));
 			RequestDispatcher view = request.getRequestDispatcher("/cadastroUsuario.jsp");
 			request.setAttribute("usuarios", daoUsuario.listar());
 			view.forward(request, response);
-		} else if (acao.equalsIgnoreCase("editar")) {
+		} else if (acao != null && acao.equalsIgnoreCase("editar")) {
 			BeanCursoJsp beanCursoJsp = daoUsuario.consultar(Long.parseLong(user));
 			RequestDispatcher view = request.getRequestDispatcher("/cadastroUsuario.jsp");
 			request.setAttribute("user", beanCursoJsp);
 			view.forward(request, response);
-		} else if (acao.equalsIgnoreCase("listarTodos")) {
+		} else if (acao != null && acao.equalsIgnoreCase("listarTodos")) {
 			RequestDispatcher view = request.getRequestDispatcher("/cadastroUsuario.jsp");
 			request.setAttribute("usuarios", daoUsuario.listar());
 			view.forward(request, response);
-		} else if (acao.equalsIgnoreCase("download")) {
+		} else if (acao != null && acao.equalsIgnoreCase("download")) {
 			BeanCursoJsp beanCursoJsp = daoUsuario.consultar(Long.parseLong(user));
 			if (beanCursoJsp != null) {
 				// clicando na imagem sem redirecionar para outra página e realizar o download
@@ -102,6 +99,10 @@ public class Usuario extends HttpServlet {
 				os.close();
 
 			}
+		} else {
+			RequestDispatcher view = request.getRequestDispatcher("/cadastroUsuario.jsp");
+			request.setAttribute("usuarios", daoUsuario.listar());
+			view.forward(request, response);
 		}
 	}
 
@@ -120,7 +121,6 @@ public class Usuario extends HttpServlet {
 			String login = request.getParameter("login");
 			String senha = request.getParameter("senha");
 			String nome = request.getParameter("nome");
-			String fone = request.getParameter("fone");
 			String cep = request.getParameter("cep");
 			String rua = request.getParameter("rua");
 			String bairro = request.getParameter("bairro");
@@ -148,11 +148,44 @@ public class Usuario extends HttpServlet {
 					Part imagemFoto = request.getPart("foto");
 
 					if (imagemFoto != null && imagemFoto.getInputStream().available() > 0) {
+						
+						byte[] bytesImagem = converteStreamParaByte(imagemFoto.getInputStream());
 						String fotoBase64 = new Base64()
-								.encodeBase64String(converteStreamParaByte(imagemFoto.getInputStream()));
+								.encodeBase64String(bytesImagem);
 
 						usuario.setFotoBase64(fotoBase64);
 						usuario.setContentType(imagemFoto.getContentType());
+						
+						
+						/* início miniatura imagem */
+						
+						//decodificar a imagem que vai virar miniatura
+						byte[] imageByteDecode = new Base64().decodeBase64(fotoBase64);
+						
+						// Transforma a imagem decodificada em um buffered image
+						BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageByteDecode));
+						
+						//pegar o tipo da imagem
+						int type = bufferedImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : bufferedImage.getType();/* o tipo da imagem é 
+						igual a 0? se sim atribui o valor padrão INT_ARGB, se n pega o tipo da imagem*/
+						
+						//Cria a imagem em miniatura
+						BufferedImage redimensionarImagem = new BufferedImage(100, 100, type);
+						Graphics2D grafico = redimensionarImagem.createGraphics();
+						//desenhando a imagem novamente
+						grafico.drawImage(bufferedImage, 0, 0, 100,100, null);	
+						grafico.dispose();
+						//escrevendo imagem novamente
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						ImageIO.write(redimensionarImagem, "png", baos);
+						
+						//preparando a imagem para ser mostrada direta na tela, infomando o cabeçalho data:image/png;base64,
+						String miniaturaBase64 = "data:image/png;base64,"+ DatatypeConverter.printBase64Binary(baos.toByteArray());
+						
+						usuario.setFotoBase64Miniatura(miniaturaBase64);
+						/* fim miniatura imagem */
+						
+						
 					} else {
 						usuario.setFotoBase64(request.getParameter("fotoTemp"));
 						usuario.setContentType(request.getParameter("contentTypeTemp"));
@@ -188,7 +221,6 @@ public class Usuario extends HttpServlet {
 			usuario.setLogin(login);
 			usuario.setSenha(senha);
 			usuario.setNome(nome);
-			usuario.setFone(fone);
 			usuario.setCep(cep);
 			usuario.setRua(rua);
 			usuario.setBairro(bairro);
@@ -208,10 +240,7 @@ public class Usuario extends HttpServlet {
 				request.setAttribute("msg", "O nome deve ser informado");
 				request.setAttribute("user", usuario);
 
-			} else if (fone == null || fone.isEmpty()) {
-				request.setAttribute("msg", "O telefone deve ser informado");
-				request.setAttribute("user", usuario);
-
+			
 			} else if (id == null || id.isEmpty() && !daoUsuario.validarLogin(login)) {
 				request.setAttribute("msg", "Usuário já existe com o mesmo login");
 				request.setAttribute("user", usuario);

@@ -25,71 +25,69 @@
 			<li>
 				<table>
 					<tr>
-						<td>Código</td>
+						<td >Código</td>
 						<td><input type="text" readonly="readonly" id="id" name="id"
-							value="${user.id}" class="field-long"></td>
+							value="${user.id}"></td>
 						<td>CEP</td>
 						<td><input type="text" id="cep" name="cep"
-							value="${user.cep}" class="field-long" onblur="consultaCep()"></td>
+							value="${user.cep}" onblur="consultaCep()" maxlength="8"></td>
 					</tr>
 					<tr>
-						<td>Login</td>
-						<td><input type="text" id="login" name="login"
-							value="${user.login}" class="field-long"></td>
-						<td>Rua</td>
-						<td><input type="text" id="rua" name="rua"
-							value="${user.rua}" class="field-long"></td>
+						<td >Login</td>
+						<td ><input type="text" id="login" name="login"
+							value="${user.login}" maxlength="20"></td>
+						<td >Rua</td>
+						<td ><input type="text" id="rua" name="rua"
+							value="${user.rua}" maxlength="50"></td>
 					</tr>
 					<tr>
-						<td>Nome</td>
-						<td><input type="text" id="nome" name="nome"
-							value="${user.nome}" class="field-long"></td>
-						<td>Bairro</td>
-						<td><input type="text" id="bairro" name="bairro"
-							value="${user.bairro}" class="field-long"></td>
+						<td >Nome</td>
+						<td ><input type="text" id="nome" name="nome"
+							value="${user.nome}" maxlength="50"></td>
+						<td >Bairro</td>
+						<td ><input type="text" id="bairro" name="bairro"
+							value="${user.bairro}" maxlength="50"></td>
 					</tr>
 					<tr>
-						<td>Senha</td>
-						<td><input type="password" id="senha" name="senha"
-							value="${user.senha}" class="field-long"></td>
-						<td>Cidade</td>
-						<td><input type="text" id="cidade" name="cidade"
-							value="${user.cidade}" class="field-long"></td>
+						<td >Senha</td>
+						<td ><input type="password" id="senha" name="senha"
+							value="${user.senha}" ></td>
+						<td >Cidade</td>
+						<td ><input type="text" id="cidade" name="cidade"
+							value="${user.cidade}" maxlength="50"></td>
 					</tr>
 					<tr>
-						<td>Fone</td>
-						<td><input type="text" id="fone" name="fone"
-							value="${user.fone}" class="field-long"></td>
-						<td>Estado</td>
-						<td><input type="text" id="estado" name="estado"
-							value="${user.estado}" class="field-long"></td>
+						<td >Estado</td>
+						<td ><input type="text" id="estado" name="estado"
+							value="${user.estado}" ></td>
 					</tr>
 					<tr>
-						<td>IBGE</td>
-						<td><input type="text" id="ibge" name="ibge"
-							value="${user.ibge}" class="field-long"></td>
+						<td >IBGE</td>
+						<td ><input type="text" id="ibge" name="ibge"
+							value="${user.ibge}" ></td>
 					</tr>
 					<tr>
-						<td>Foto:</td>
-						<td><input type="file" name="foto" id="foto"
-							class="field-long"><input type="text" readonly="readonly"
+						<td >Foto:</td>
+						<td ><input type="file" name="foto" id="foto"
+							><input type="text" readonly="readonly"
 							value="${user.fotoBase64}" name="fotoTemp" hidden> <input
 							type="text" readonly="readonly" value="${user.contentType}"
 							name="contentTypeTemp" hidden></td>
 					</tr>
 					<tr>
-						<td>Currículo:</td>
-						<td><input type="file" name="curriculo" id="curriculo"
-							value="curriculo" class="field-long"><input type="text"
+						<td >Currículo:</td>
+						<td ><input type="file" name="curriculo" id="curriculo"
+							value="curriculo"><input type="text"
 							readonly="readonly" value="${user.curriculoBase64}"
 							name="curriculoTemp" hidden> <input type="text"
 							readonly="readonly" value="${user.contentTypeCurriculo}"
 							name="contentTypeCurriculoTemp" hidden></td>
 					</tr>
 					<tr>
-						<td><input type="submit" value="Salvar"></td>
+					<td> </td>	
+						<td><input type="submit" value="Salvar" ></td>
 						<td><input type="submit" value="Cancelar"
-							onclick="document.getElementById('formUser').action = 'salvarUsuario?acao=reset'"></td>
+							onclick="document.getElementById('formUser').action = 'salvarUsuario?acao=reset'" ></td>
 					</tr>
 				</table>
 			</li>
@@ -111,13 +109,13 @@
 			<tr>
 				<td><c:out value="${user.id}"></c:out></td>
 				<!-- *** Verificando se há foto no BD para exibir do usuário *** -->
-				<c:if test="${user.fotoBase64.isEmpty() == false}">
+				<c:if test="${user.fotoBase64Miniatura.isEmpty() == false}">
 					<td><a
 						href="salvarUsuario?acao=download&tipo=imagem&user=${user.id}"><img
-							src='<c:out value="${user.tempFotoUser}"></c:out>'
+							src='<c:out value="${user.fotoBase64Miniatura}"></c:out>'
 							alt="Imagem User" title="Imagem User" width="32px" height="32px"></a></td>
 				</c:if>
-				<c:if test="${user.fotoBase64.isEmpty() == true || user.fotoBase64.isEmpty() == null}">
+				<c:if test="${user.fotoBase64Miniatura.isEmpty() == true || user.fotoBase64Miniatura.isEmpty() == null}">
 					<td><img src="resources/img/userpadrao.png" alt="Imagem User" width="32px" height="32px"></td>
 				</c:if>
 				<!-- *** -->
@@ -154,10 +152,7 @@
 			} else if (document.getElementById("senha").value == '') {
 				alert('A senha deve ser informada.');
 				return false;
-			} else if (document.getElementById("fone").value == '') {
-				alert('O telefone deve ser informado.');
-				return false;
-			}
+			} 
 
 			return true;
 		};

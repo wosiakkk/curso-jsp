@@ -1,6 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<!-- uri da bilioteca de format Number do JSTL -->
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,6 +12,8 @@
 <link rel="stylesheet" href="resources/css/cadastro.css">
 
 <script type='text/javascript' src="webjars/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript"
+	src="resources/javascript/jquery.maskMoney.min.js"></script>
 
 </head>
 <body>
@@ -32,17 +37,17 @@
 						<tr>
 							<td>Nome</td>
 							<td><input type="text" id="nome" name="nome"
-								value="${prod.nome}" class="field-long"></td>
+								value="${prod.nome}" maxlength="50"></td>
 						</tr>
 						<tr>
-							<td>Quantidade</td>
-							<td><input type="text" id="quantidade" name="quantidade"
-								value="${prod.quantidade}" class="field-long"></td>
+							<td>Quantidade Unidade</td>
+							<td><input type="number" id="quantidade" name="quantidade"
+								value="${prod.quantidade}" maxlength="4"></td>
 						</tr>
 						<tr>
 							<td>Valor R$</td>
 							<td><input type="text" id="valor" name="valor"
-								value="${prod.valor}" class="field-long"></td>
+								value="${prod.valorEmTexto}" data-thousands="." data-decimal=","></td>
 						</tr>
 						<tr>
 
@@ -71,7 +76,7 @@
 						<td><c:out value="${prod.id}"></c:out></td>
 						<td><c:out value="${prod.nome}"></c:out></td>
 						<td><c:out value="${prod.quantidade}"></c:out></td>
-						<td><c:out value="${prod.valor}"></c:out></td>
+						<td><fmt:formatNumber type="number" maxFractionDigits="2" value="${prod.valor}"></fmt:formatNumber></td>
 						<td><a href="salvarProduto?acao=delete&prod=${prod.id}"><img
 								src="resources/img/excluir.png" width="20px" height="20px"
 								title="Excluir Produto"></a></td>
@@ -100,6 +105,12 @@
 			return true;
 		};
 	</script>
-
 </body>
+<!-- Jquery para máscara de dinheiro, script usado é o jquery maskmoney -->
+<script type="text/javascript">
+	$(function() {
+		$('#valor').maskMoney();
+	})
+
+</script>
 </html>

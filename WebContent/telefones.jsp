@@ -25,26 +25,28 @@
 						<tr>
 							<td>User</td>
 							<td><input type="text" readonly="readonly" id="id" name="id"
-								value="${userEscolhido.id}" class="field-long"></td>
+								value="${userEscolhido.id}" ></td>
 							<td><input type="text" readonly="readonly" id="nome"
-								name="nome" value="${userEscolhido.nome}" class="field-long"></td>
+								name="nome" value="${userEscolhido.nome}" ></td>
 
 						</tr>
 						<tr>
 							<td>Número</td>
 							<td><input type="text" id="numero" name="numero"
-								 class="field-long"></td>
-							<td><select id="tipo" name="tipo">
+								></td>
+							<td><select id="tipo" name="tipo" >
 									<option>Casa</option>
 									<option>Contato</option>
 									<option>Celular</option>
 							</select></td>
+
 						</tr>
 						<tr>
-
-							<td><input type="submit" value="Salvar"></td>
-							<td><input type="submit" value="Cancelar"
-								onclick="document.getElementById('formUser').action = 'salvarUsuario?acao=reset'"></td>
+							<td></td>
+							<td><input type="submit" value="Salvar" ></td>
+							<td><input type="submit" value="Voltar"
+								onclick="document.getElementById('formUser').action = 'salvarTelefones?acao=voltar'"
+								></td>
 						</tr>
 					</table>
 				</li>
@@ -65,7 +67,8 @@
 						<td><c:out value="${fone.numero}"></c:out></td>
 						<td><c:out value="${fone.tipo}"></c:out></td>
 
-						<td><a href="salvarTelefones?acao=deleteFone&foneId=${fone.id}"><img
+						<td><a
+							href="salvarTelefones?acao=deleteFone&foneId=${fone.id}"><img
 								src="resources/img/excluir.png" width="20px" height="20px"
 								title="Excluir Telefone"></a></td>
 
@@ -83,8 +86,6 @@
 
 			return true;
 		};
-
-		
 	</script>
 </body>
 </html>

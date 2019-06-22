@@ -33,4 +33,9 @@ public class BeanProduto {
 		this.valor = valor;
 	}
 	
+	//resolvendo o problema da edição de valor causado ao usar o jquery mask money
+	public String getValorEmTexto() {
+		return Float.toString(valor).replace('.', ',');
+	}
+	
 }

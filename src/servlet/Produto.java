@@ -71,10 +71,13 @@ public class Produto extends HttpServlet {
 			if (!quantidade.isEmpty())
 				produto.setQuantidade(Float.parseFloat(quantidade));
 				
-			if(!valor.isEmpty())
-				produto.setValor(Float.parseFloat(valor));
+			if(!valor.isEmpty()) {
+				
+				String valorSemPonto = valor.replaceAll("\\.", "");
 			
+				produto.setValor(Float.parseFloat(valorSemPonto.replaceAll("\\,", ".")));
 			
+			}
 			if (nome == null || nome.isEmpty()) {
 				request.setAttribute("msg", "O nome do produto deve ser informado");
 				request.setAttribute("prod", produto);
