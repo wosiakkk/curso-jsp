@@ -20,7 +20,7 @@ public class DaoUsuario {
 
 	public void salvar(BeanCursoJsp usuario) {
 		String sql = "insert into usuarios (login,senha,nome,"
-				+ "cep,rua,bairro,cidade,estado,ibge, fotobase64, contenttype, curriculobase64, contenttypecurriculo, fotobase64miniatura) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				+ "cep,rua,bairro,cidade,estado,ibge, fotobase64, contenttype, curriculobase64, contenttypecurriculo, fotobase64miniatura, ativo, sexo, perfil) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		PreparedStatement insert;
 		try {
 			insert = connection.prepareStatement(sql);
@@ -38,6 +38,9 @@ public class DaoUsuario {
 			insert.setString(12, usuario.getCurriculoBase64());
 			insert.setString(13, usuario.getContentTypeCurriculo());
 			insert.setString(14, usuario.getFotoBase64Miniatura());
+			insert.setBoolean(15, usuario.isAtivo());
+			insert.setString(16, usuario.getSexo());
+			insert.setString(17, usuario.getPerfil());
 			insert.executeUpdate();
 			connection.commit();
 		} catch (SQLException e) {
@@ -50,9 +53,19 @@ public class DaoUsuario {
 		}
 
 	}
+	
+	public List<BeanCursoJsp> listar (String descricaoConsulta){
+		String sql = "select * from usuarios where login <> 'admin' and nome like '%"+descricaoConsulta+"%'";
+		return consultarUsuarios(sql);
+	}
 
 	public List<BeanCursoJsp> listar() {
 		String sql = "select * from usuarios where login <> 'admin' order by id asc";
+		return consultarUsuarios(sql);
+	}
+
+	//esse método surgiu de uma refatoração pois o mesmo código iria se repetir nos 2 métodos listar, somente com o SQL diferente
+	private List<BeanCursoJsp> consultarUsuarios(String sql) {
 		List<BeanCursoJsp> lista = new ArrayList<BeanCursoJsp>();
 		try {
 			PreparedStatement buscar = connection.prepareStatement(sql);
@@ -67,6 +80,9 @@ public class DaoUsuario {
 				usuario.setContentType(rs.getString("contenttype"));
 				usuario.setCurriculoBase64(rs.getString("curriculobase64"));
 				usuario.setContentTypeCurriculo(rs.getString("contenttypecurriculo"));
+				usuario.setAtivo(rs.getBoolean("ativo"));
+				usuario.setSexo(rs.getString("sexo"));
+				usuario.setPerfil(rs.getString("perfil"));
 				lista.add(usuario);
 			}
 		} catch (SQLException e) {
@@ -114,6 +130,9 @@ public class DaoUsuario {
 				usuario.setCidade(rs.getString("cidade"));
 				usuario.setEstado(rs.getString("estado"));
 				usuario.setIbge(rs.getString("ibge"));
+				usuario.setAtivo(rs.getBoolean("ativo"));
+				usuario.setSexo(rs.getString("sexo"));
+				usuario.setPerfil(rs.getString("perfil"));
 				usuario.setFotoBase64(rs.getString("fotobase64"));
 				usuario.setFotoBase64Miniatura(rs.getString("fotobase64miniatura"));
 				usuario.setContentType(rs.getString("contenttype"));
@@ -169,13 +188,27 @@ public class DaoUsuario {
 	}
 
 	public void atualizar(BeanCursoJsp usuario) {
-
-		String sql = "update usuarios set login = ?, senha = ?, nome = ?, fone = ?, cep = ?"
-				+ ", rua = ?, bairro = ?, cidade = ?, estado = ?, ibge = ? , fotobase64= ?,"
-				+ " contenttype = ?, curriculobase64 = ?, contenttypecurriculo = ?, fotobase64miniatura = ?  where id = ?";
+		//verificando no atualizar se arquivos de imagem ou pdf foram inseridos para serem atualizados e montar a sql de acordo com string builder
+		StringBuilder sql = new StringBuilder();
+		sql.append("update usuarios set login = ?, senha = ?, nome = ?, fone = ?, cep = ? ");
+		sql.append(", rua = ?, bairro = ?, cidade = ?, estado = ?, ibge = ?, ativo = ?, sexo = ?, perfil = ? ");
+		
+		if(usuario.isAtualizarImagem()) {
+			sql.append(" , fotobase64= ?, contenttype = ? ");
+		}
+		
+		if(usuario.isAtualizarPdf()) {
+			sql.append(", curriculobase64 = ?, contenttypecurriculo = ? ");
+		}
+		
+		if(usuario.isAtualizarImagem()) {
+			sql.append(", fotobase64miniatura = ? ");
+		}
+		
+		sql.append("  where id = ?");
 		PreparedStatement stmt;
 		try {
-			stmt = connection.prepareStatement(sql);
+			stmt = connection.prepareStatement(sql.toString());
 			stmt.setString(1, usuario.getLogin());
 			stmt.setString(2, usuario.getSenha());
 			stmt.setString(3, usuario.getNome());
@@ -186,13 +219,36 @@ public class DaoUsuario {
 			stmt.setString(8, usuario.getCidade());
 			stmt.setString(9, usuario.getEstado());
 			stmt.setString(10, usuario.getIbge());
-			stmt.setString(11, usuario.getFotoBase64());
-			stmt.setString(12, usuario.getContentType());
-			stmt.setString(13, usuario.getCurriculoBase64());
-			stmt.setString(14, usuario.getContentTypeCurriculo());
-			stmt.setString(15, usuario.getFotoBase64Miniatura());
-			stmt.setLong(16, usuario.getId());
-
+			stmt.setBoolean(11, usuario.isAtivo());
+			stmt.setString(12, usuario.getSexo());
+			stmt.setString(13, usuario.getPerfil());
+			
+			//lógica para montar o pstatement de acordo com o sql montado
+			
+			if(!usuario.isAtualizarImagem() && !usuario.isAtualizarPdf()) {
+				//não tem nem imagem e nem pdf no atualizar
+				stmt.setLong(14, usuario.getId());	
+			}else if (usuario.isAtualizarImagem() && !usuario.isAtualizarPdf()) {
+				//tem imagem mas não tem pdf
+				stmt.setString(14, usuario.getFotoBase64());
+				stmt.setString(15, usuario.getContentType());
+				stmt.setString(16, usuario.getFotoBase64Miniatura());
+				stmt.setLong(17, usuario.getId());
+			}else if(usuario.isAtualizarPdf() && !usuario.isAtualizarImagem()) {
+				//tem pdf mas não tem a imagem
+				stmt.setString(14, usuario.getCurriculoBase64());
+				stmt.setString(15, usuario.getContentTypeCurriculo());
+				stmt.setLong(16, usuario.getId());
+			}else if(usuario.isAtualizarImagem() && usuario.isAtualizarPdf()) {
+				//tem ambos
+				stmt.setString(14, usuario.getFotoBase64());
+				stmt.setString(15, usuario.getContentType());
+				stmt.setString(16, usuario.getCurriculoBase64());
+				stmt.setString(17, usuario.getContentTypeCurriculo());
+				stmt.setString(18, usuario.getFotoBase64Miniatura());
+				stmt.setLong(19, usuario.getId());
+			}
+			//executando o update
 			stmt.executeUpdate();
 			connection.commit();
 		} catch (SQLException e) {

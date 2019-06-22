@@ -127,7 +127,11 @@ public class Usuario extends HttpServlet {
 			String cidade = request.getParameter("cidade");
 			String estado = request.getParameter("estado");
 			String ibge = request.getParameter("ibge");
+			String sexo = request.getParameter("sexo");
+			String perfil = request.getParameter("perfil");
 
+			
+			
 			BeanCursoJsp usuario = new BeanCursoJsp();
 
 			/* Início de upload de foto */
@@ -187,8 +191,7 @@ public class Usuario extends HttpServlet {
 						
 						
 					} else {
-						usuario.setFotoBase64(request.getParameter("fotoTemp"));
-						usuario.setContentType(request.getParameter("contentTypeTemp"));
+						usuario.setAtualizarImagem(false);
 					}
 
 					// Processamento PDF
@@ -201,8 +204,7 @@ public class Usuario extends HttpServlet {
 						usuario.setCurriculoBase64(curriculoBase64);
 						usuario.setContentTypeCurriculo(curriculoPdf.getContentType());
 					} else {
-						usuario.setCurriculoBase64(request.getParameter("curriculoTemp"));
-						usuario.setContentTypeCurriculo(request.getParameter("contentTypeCurriculoTemp"));
+						usuario.setAtualizarPdf(false);
 					}
 
 				}
@@ -227,6 +229,14 @@ public class Usuario extends HttpServlet {
 			usuario.setCidade(cidade);
 			usuario.setEstado(estado);
 			usuario.setIbge(ibge);
+			usuario.setSexo(sexo);
+			usuario.setPerfil(perfil);
+			
+			if(request.getParameter("ativo") != null && request.getParameter("ativo").equalsIgnoreCase("on")) {
+				usuario.setAtivo(true);
+			}else {
+				usuario.setAtivo(false);
+			}
 
 			if (login == null || login.isEmpty()) {
 				request.setAttribute("msg", "O login deve ser informado");

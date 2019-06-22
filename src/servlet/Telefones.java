@@ -28,10 +28,11 @@ public class Telefones extends HttpServlet {
 			throws ServletException, IOException {
 
 		String acao = request.getParameter("acao");
-
+		String user = request.getParameter("user");
+		if(acao!=null) {
 		if (acao.equalsIgnoreCase("addFone")) {
 
-			String user = request.getParameter("user");
+			
 
 			BeanCursoJsp usuario = daoUsuario.consultar(Long.parseLong(user));
 
@@ -50,6 +51,11 @@ public class Telefones extends HttpServlet {
 			RequestDispatcher view = request.getRequestDispatcher("/telefones.jsp");
 			request.setAttribute("telefones", daoTelefones.listar(userSessao.getId()));
 			request.setAttribute("msg", "Telefone deletado com sucesso.");
+			view.forward(request, response);
+		}
+		}else {
+			RequestDispatcher view = request.getRequestDispatcher("/cadastroUsuario.jsp");
+			request.setAttribute("usuarios", daoUsuario.listar());
 			view.forward(request, response);
 		}
 	}

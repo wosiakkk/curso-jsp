@@ -19,8 +19,54 @@ public class BeanCursoJsp {
 	private String tempFotoUser;
 	private String curriculoBase64;
 	private String contentTypeCurriculo;
+	private boolean atualizarImagem = true;
+	private boolean atualizarPdf = true;
+	private boolean ativo;
+	private String sexo;
+	private String perfil;
 	
 	
+	
+	public String getPerfil() {
+		return perfil;
+	}
+
+	public void setPerfil(String perfil) {
+		this.perfil = perfil;
+	}
+
+	public boolean isAtivo() {
+		return ativo;
+	}
+	
+	public String getSexo() {
+		return sexo;
+	}
+
+	public void setSexo(String sexo) {
+		this.sexo = sexo;
+	}
+
+	public void setAtivo(boolean ativo) {
+		this.ativo = ativo;
+	}
+	
+	public boolean isAtualizarImagem() {
+		return atualizarImagem;
+	}
+
+	public void setAtualizarImagem(boolean atualizarImagem) {
+		this.atualizarImagem = atualizarImagem;
+	}
+
+	public boolean isAtualizarPdf() {
+		return atualizarPdf;
+	}
+
+	public void setAtualizarPdf(boolean atualizarPdf) {
+		this.atualizarPdf = atualizarPdf;
+	}
+
 	public String getTempFotoUser() {
 		//contatenando a string no padrão de leitura de uma imagem em base 64, que é 'data:image/png;base64,xxxxx(codificação da imagem no bd)
 		tempFotoUser = "data:"+ contentType+";base64,"+ fotoBase64;

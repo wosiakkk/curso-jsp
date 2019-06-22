@@ -25,8 +25,8 @@ public class Produto extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
-		String acao = request.getParameter("acao");
+//minha ação é difenrente de nula se sim pega a ação, se não define ela como listarTodos
+		String acao = request.getParameter("acao") != null? request.getParameter("acao") : "listarTodos" ;
 		String prod = request.getParameter("prod");
 
 		if (acao.equalsIgnoreCase("delete")) {

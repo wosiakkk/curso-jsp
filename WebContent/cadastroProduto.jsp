@@ -17,8 +17,8 @@
 
 </head>
 <body>
-	<a href="acessoliberado.jsp">Início</a>
-	<a href="index.jsp">Sair</a>
+	<a href="acessoliberado.jsp"><img src="resources/img/home.png" alt="Home" title="Voltar ao início" style="width: 50px; height: 50px"></a>
+	<a href="index.jsp"><img src="resources/img/logout.png" alt="Sair" title="Sair do sistema" style="width: 45px; height: 45px"></a>
 	<div class="content">
 		<form action="salvarProduto" method="POST" id="formUser"
 			onsubmit="return validarCampos()? true: false;">
@@ -41,8 +41,8 @@
 						</tr>
 						<tr>
 							<td>Quantidade Unidade</td>
-							<td><input type="number" id="quantidade" name="quantidade"
-								value="${prod.quantidade}" maxlength="4"></td>
+							<td><input type="text" id="quantidade" name="quantidade"
+								value="${prod.quantidade}" maxlength="7" size="7"></td>
 						</tr>
 						<tr>
 							<td>Valor R$</td>
@@ -77,7 +77,7 @@
 						<td><c:out value="${prod.nome}"></c:out></td>
 						<td><c:out value="${prod.quantidade}"></c:out></td>
 						<td><fmt:formatNumber type="number" maxFractionDigits="2" value="${prod.valor}"></fmt:formatNumber></td>
-						<td><a href="salvarProduto?acao=delete&prod=${prod.id}"><img
+						<td><a href="salvarProduto?acao=delete&prod=${prod.id}" onclick="return confirm('Confirmar a exclusão ?');"><img
 								src="resources/img/excluir.png" width="20px" height="20px"
 								title="Excluir Produto"></a></td>
 						<td><a href="salvarProduto?acao=editar&prod=${prod.id}">
@@ -110,7 +110,13 @@
 <script type="text/javascript">
 	$(function() {
 		$('#valor').maskMoney();
-	})
+	});
+	
+	$(document).ready(function() {
+		$("#quantidade").keyup(function() {
+			$("#quantidade").val(this.value.match(/[0-9]*/));
+		});
+	});
 
 </script>
 </html>

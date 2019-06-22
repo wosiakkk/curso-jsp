@@ -10,8 +10,10 @@
 
 </head>
 <body>
-	<a href="acessoliberado.jsp">Início</a>
-	<a href="index.jsp">Sair</a>
+	<a href="acessoliberado.jsp"><img src="resources/img/home.png"
+		alt="Home" title="Voltar ao início" style="width: 50px; height: 50px"></a>
+	<a href="index.jsp"><img src="resources/img/logout.png" alt="Sair"
+		title="Sair do sistema" style="width: 45px; height: 45px"></a>
 	<div class="content">
 		<form action="salvarTelefones" method="POST" id="formUser"
 			onsubmit="return validarCampos()? true: false;">
@@ -68,9 +70,9 @@
 						<td><c:out value="${fone.tipo}"></c:out></td>
 
 						<td><a
-							href="salvarTelefones?acao=deleteFone&foneId=${fone.id}"><img
+							href="salvarTelefones?acao=deleteFone&foneId=${fone.id}" onclick="return confirm('Confirmar exclusão?');"><img
 								src="resources/img/excluir.png" width="20px" height="20px"
-								title="Excluir Telefone"></a></td>
+								title="Excluir Telefone"/></a></td>
 
 					</tr>
 				</c:forEach>
